@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Future Fitness — Join the Leaderboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f5f2ee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+    }
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .logo-circle {
+      width: 48px;
+      height: 48px;
+      background: #FC4C02;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem;
+      color: #1a1a1a;
+    }
+    .badge {
+      background: #FC4C02;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.8rem;
+      color: #1a1a1a;
+      line-height: 1.1;
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+    .subtitle {
+      font-size: 1rem;
+      color: #666;
+      text-align: center;
+      max-width: 380px;
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 2.5rem;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 2px 40px rgba(0,0,0,0.08);
+    }
+    .steps { margin-bottom: 2rem; }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0ede9;
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #FFF0E8;
+      color: #FC4C02;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .step-text { font-size: 14px; color: #444; line-height: 1.5; }
+    .step-text strong { color: #1a1a1a; font-weight: 500; }
+    .btn-strava {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #FC4C02;
+      color: white;
+      text-decoration: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 15px 24px;
+      border-radius: 12px;
+      width: 100%;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-strava:hover { background: #e04400; transform: translateY(-1px); }
+    .btn-strava:active { transform: scale(0.98); }
+    .btn-strava svg { width: 22px; height: 22px; }
+    .privacy-note {
+      margin-top: 1rem;
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo-row">
+    <div class="logo-circle">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+        <path d="M13.5 5.5L17 12H14L17.5 18.5H10.5L14 12H11L13.5 5.5Z" fill="white"/>
+      </svg>
+    </div>
+    <span class="logo-text">Future Fitness</span>
+  </div>
+
+  <span class="badge">Strava Club</span>
+
+  <h1>Join the<br>leaderboard</h1>
+  <p class="subtitle">Connect your Strava account once and your activities will automatically count toward club challenges.</p>
+
+  <div class="card">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Click the button below</strong> — you'll be taken to Strava to log in</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Authorize the app</strong> — grants read-only access to your activities</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>You're on the board</strong> — your runs, rides and workouts will be tracked automatically</div>
+      </div>
+    </div>
+
+    <!-- ✏️  Replace YOUR-USERNAME with your GitHub username and adjust the repo name if needed -->
+    <a class="btn-strava"
+       href="https://www.strava.com/oauth/authorize?client_id=216766&response_type=code&redirect_uri=https://YOUR-USERNAME.github.io/future-fitness/callback.html&approval_prompt=force&scope=activity:read_all">
+      <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
+      </svg>
+      Connect with Strava
+    </a>
+
+    <p class="privacy-note">Read-only access. We never post on your behalf or see your private data.</p>
+  </div>
+
+</body>
+</html>

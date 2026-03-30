@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Future Fitness — Connecting...</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f5f2ee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+    .logo-circle {
+      width: 64px;
+      height: 64px;
+      background: #FC4C02;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: #1a1a1a;
+      margin-bottom: 0.75rem;
+    }
+    .subtitle {
+      font-size: 1rem;
+      color: #666;
+      max-width: 360px;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    .code-box {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 2px 40px rgba(0,0,0,0.08);
+      margin-bottom: 1rem;
+    }
+    .code-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 0.5rem;
+    }
+    .code-value {
+      font-family: monospace;
+      font-size: 14px;
+      color: #1a1a1a;
+      background: #f5f2ee;
+      padding: 10px 14px;
+      border-radius: 8px;
+      word-break: break-all;
+      margin-bottom: 1rem;
+    }
+    .copy-btn {
+      background: #FC4C02;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .copy-btn:hover { background: #e04400; }
+    .instructions {
+      font-size: 13px;
+      color: #888;
+      max-width: 420px;
+      line-height: 1.6;
+    }
+    .instructions strong { color: #555; }
+    .error-box {
+      background: #FFF0E8;
+      border: 1px solid #FFCFB8;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      max-width: 420px;
+      font-size: 14px;
+      color: #993C1D;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo-circle">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+      <path d="M13.5 5.5L17 12H14L17.5 18.5H10.5L14 12H11L13.5 5.5Z" fill="white"/>
+    </svg>
+  </div>
+
+  <div id="success-view" style="display:none; flex-direction:column; align-items:center;">
+    <h1>You're connected!</h1>
+    <p class="subtitle">Copy your authorization code below and send it to your club admin to complete setup.</p>
+
+    <div class="code-box">
+      <div class="code-label">Your authorization code</div>
+      <div class="code-value" id="code-display">—</div>
+      <button class="copy-btn" onclick="copyCode()">Copy code</button>
+    </div>
+
+    <p class="instructions">
+      <strong>What to do next:</strong> Send this code to your Future Fitness club admin.
+      They'll use it to link your Strava account and you'll start appearing on the leaderboard.
+    </p>
+  </div>
+
+  <div id="error-view" class="error-box">
+    Something went wrong — Strava didn't return an authorization code.
+    Please go back and try again, or contact your club admin.
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const error = params.get('error');
+
+    if (code) {
+      document.getElementById('code-display').textContent = code;
+      document.getElementById('success-view').style.display = 'flex';
+    } else {
+      const errBox = document.getElementById('error-view');
+      errBox.style.display = 'block';
+      if (error) errBox.textContent = 'Error from Strava: ' + error + '. Please go back and try again.';
+    }
+
+    function copyCode() {
+      const code = document.getElementById('code-display').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy code', 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
