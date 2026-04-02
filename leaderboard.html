@@ -283,7 +283,7 @@
     <div class="pill-group" id="period-group">
       <button class="pill" onclick="setPeriod('week', event)">This week</button>
       <button class="pill" onclick="setPeriod('month', event)">This month</button>
-      <button class="pill active" onclick="setPeriod('all', event)">All time</button>
+      <button class="pill active" onclick="setPeriod('competition', event)">Since 1 Apr</button>
     </div>
   </div>
 
@@ -309,10 +309,10 @@
 
   <!-- Metric switcher -->
   <div class="metric-tabs" id="metric-group">
-    <button class="pill active" onclick="setMetric('distance', event)">Distance</button>
+    <button class="pill" onclick="setMetric('distance', event)">Distance</button>
     <button class="pill" onclick="setMetric('elevation', event)">Elevation</button>
     <button class="pill" onclick="setMetric('activities', event)">Activities</button>
-    <button class="pill" onclick="setMetric('time', event)">Time</button>
+    <button class="pill active" onclick="setMetric('time', event)">Time</button>
   </div>
 
   <!-- Leaderboard -->
@@ -350,8 +350,8 @@ function getInitials(name) {
 }
 
 let MEMBERS = [];
-let currentPeriod = 'all';
-let currentMetric = 'distance';
+let currentPeriod = 'competition';
+let currentMetric = 'time';
 
 // ── Data loading ─────────────────────────────────────────────
 
@@ -396,6 +396,9 @@ function getDateRange(period) {
   }
   if (period === 'month') {
     return new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+  if (period === 'competition') {
+    return new Date('2026-04-01');
   }
   return new Date('2000-01-01');
 }
@@ -461,7 +464,7 @@ function render() {
   document.getElementById('total-acts').textContent = totActs;
 
   const count = MEMBERS.length;
-  const periodLabels = { week: 'this week', month: 'this month', all: 'all time' };
+  const periodLabels = { week: 'this week', month: 'this month', competition: 'since 1 Apr' };
   document.getElementById('period-desc').innerHTML =
     'Showing ' + periodLabels[currentPeriod] + ' · ' + count + ' member' + (count !== 1 ? 's' : '') + ' connected';
 
