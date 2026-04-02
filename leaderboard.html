@@ -208,6 +208,45 @@
     .pending-name { font-size: 14px; color: #444; }
     .pending-hint { font-size: 12px; color: #333; margin-top: 2px; }
 
+    /* Loading state */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .skeleton {
+      background: #1a1a1a;
+      border: 0.5px solid #2a2a2a;
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      height: 74px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      border: 0.5px solid #FC4C02;
+      color: #f0ede8;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      animation: slideUp 0.3s ease;
+      z-index: 100;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
     /* Footer */
     .footer { margin-top: 3rem; text-align: center; font-size: 12px; color: #333; }
     .footer a { color: #FC4C02; text-decoration: none; }
@@ -231,20 +270,20 @@
       </div>
       <span class="club-name">Future Fitness</span>
     </div>
-    <span class="updated" id="updated-time">Updated just now</span>
+    <span class="updated" id="updated-time">Loading…</span>
   </div>
 
   <div class="hero">
     <h1>Leaderboard</h1>
-    <p id="period-desc">Showing all-time stats · <span id="member-count">1</span> member connected</p>
+    <p id="period-desc">Loading members…</p>
   </div>
 
   <!-- Period switcher -->
   <div class="controls">
     <div class="pill-group" id="period-group">
-      <button class="pill" onclick="setPeriod('week')">This week</button>
-      <button class="pill" onclick="setPeriod('month')">This month</button>
-      <button class="pill active" onclick="setPeriod('all')">All time</button>
+      <button class="pill" onclick="setPeriod('week', event)">This week</button>
+      <button class="pill" onclick="setPeriod('month', event)">This month</button>
+      <button class="pill active" onclick="setPeriod('all', event)">All time</button>
     </div>
   </div>
 
@@ -270,19 +309,24 @@
 
   <!-- Metric switcher -->
   <div class="metric-tabs" id="metric-group">
-    <button class="pill active" onclick="setMetric('distance')">Distance</button>
-    <button class="pill" onclick="setMetric('elevation')">Elevation</button>
-    <button class="pill" onclick="setMetric('activities')">Activities</button>
-    <button class="pill" onclick="setMetric('time')">Time</button>
+    <button class="pill active" onclick="setMetric('distance', event)">Distance</button>
+    <button class="pill" onclick="setMetric('elevation', event)">Elevation</button>
+    <button class="pill" onclick="setMetric('activities', event)">Activities</button>
+    <button class="pill" onclick="setMetric('time', event)">Time</button>
   </div>
 
   <!-- Leaderboard -->
-  <div class="board" id="board"></div>
+  <div class="board" id="board">
+    <div class="loading">
+      <div class="skeleton"></div>
+      <div class="skeleton" style="animation-delay:0.2s"></div>
+      <div class="skeleton" style="animation-delay:0.4s"></div>
+    </div>
+  </div>
 
   <!-- Pending members -->
   <div class="pending-section">
     <div class="pending-title">Waiting to connect</div>
-    <!-- Add pending members here as you invite them -->
     <div class="pending-entry">
       <div class="pending-avatar">+</div>
       <div>
@@ -299,62 +343,55 @@
 </div>
 
 <script>
-// ============================================================
-// MEMBER DATA — add each member's token + activities here
-// ============================================================
-// HOW TO ADD A MEMBER:
-// 1. Get their access_token from the OAuth exchange
-// 2. Fetch their activities from the Strava API
-// 3. Add an entry to the MEMBERS array below
-// 4. Their stats will automatically appear on the leaderboard
-// ============================================================
+const COLOR_CLASSES = ['c1', 'c2', 'c3', 'c4', 'c5'];
 
-const MEMBERS = [
-  {
-    id: 5920603,
-    name: "Magnus Flateland",
-    initials: "MF",
-    colorClass: "c1",
-    // Activities fetched from Strava API — add more as needed
-    // Each: { date: "YYYY-MM-DD", distance_m, moving_time_s, elevation_m, type }
-    activities: [
-      { date: "2026-03-24", distance_m: 18363.5, moving_time_s: 2746, elevation_m: 168.0, type: "Ride" },
-      { date: "2026-03-24", distance_m: 17912.3, moving_time_s: 2379, elevation_m: 121.1, type: "Ride" },
-      { date: "2026-03-23", distance_m: 17999.5, moving_time_s: 2589, elevation_m: 179.0, type: "Ride" },
-      { date: "2026-03-23", distance_m: 18049.4, moving_time_s: 2626, elevation_m: 125.0, type: "Ride" },
-      { date: "2026-03-17", distance_m: 7546.0,  moving_time_s: 1172, elevation_m: 62.0,  type: "Ride" },
-      { date: "2026-03-17", distance_m: 18208.1, moving_time_s: 2574, elevation_m: 127.0, type: "Ride" },
-      { date: "2025-12-19", distance_m: 5750.0,  moving_time_s: 1821, elevation_m: 0,     type: "Run"  },
-      { date: "2025-12-15", distance_m: 18094.0, moving_time_s: 2846, elevation_m: 173.0, type: "Ride" },
-      { date: "2025-12-15", distance_m: 18253.7, moving_time_s: 2533, elevation_m: 68.0,  type: "Ride" },
-      { date: "2025-12-06", distance_m: 8000.0,  moving_time_s: 3090, elevation_m: 0,     type: "Run"  },
-    ]
-  },
+function getInitials(name) {
+  return name.split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase();
+}
 
-  // ── TEMPLATE: copy and fill in for each new member ──────────
-  // {
-  //   id: 0000000,
-  //   name: "Member Name",
-  //   initials: "XX",
-  //   colorClass: "c2",   // c1–c5 for different colours
-  //   activities: [
-  //     { date: "2026-03-24", distance_m: 10000, moving_time_s: 1800, elevation_m: 50, type: "Run" },
-  //   ]
-  // },
-];
-
-// ============================================================
-// STATE
-// ============================================================
+let MEMBERS = [];
 let currentPeriod = 'all';
 let currentMetric = 'distance';
+
+// ── Data loading ─────────────────────────────────────────────
+
+async function loadData() {
+  try {
+    const res = await fetch('/api/leaderboard');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.json();
+
+    MEMBERS = raw.map((m, i) => ({
+      athlete_id: m.athlete_id,
+      name: m.name,
+      profile_photo: m.profile_photo,
+      initials: getInitials(m.name),
+      colorClass: COLOR_CLASSES[i % COLOR_CLASSES.length],
+      activities: (m.activities || []).map(a => ({
+        date: a.date,
+        distance_m: a.distance_m,
+        moving_time_s: a.moving_time_s,
+        elevation_m: a.elevation_m,
+        type: a.type,
+      })),
+    }));
+
+    render();
+  } catch (err) {
+    console.error('Failed to load leaderboard:', err);
+    document.getElementById('board').innerHTML =
+      '<div style="color:#555;font-size:14px;padding:1rem 0">Failed to load data. Please refresh.</div>';
+  }
+}
+
+// ── Utility ──────────────────────────────────────────────────
 
 function getDateRange(period) {
   const now = new Date();
   if (period === 'week') {
     const start = new Date(now);
     start.setDate(now.getDate() - now.getDay());
-    start.setHours(0,0,0,0);
+    start.setHours(0, 0, 0, 0);
     return start;
   }
   if (period === 'month') {
@@ -370,9 +407,9 @@ function filterActivities(activities, period) {
 
 function computeStats(activities) {
   return {
-    distance_km: activities.reduce((s,a) => s + a.distance_m, 0) / 1000,
-    elevation_m: activities.reduce((s,a) => s + a.elevation_m, 0),
-    moving_time_s: activities.reduce((s,a) => s + a.moving_time_s, 0),
+    distance_km: activities.reduce((s, a) => s + a.distance_m, 0) / 1000,
+    elevation_m: activities.reduce((s, a) => s + a.elevation_m, 0),
+    moving_time_s: activities.reduce((s, a) => s + a.moving_time_s, 0),
     count: activities.length,
   };
 }
@@ -398,46 +435,53 @@ function getRawMetric(stats, metric) {
   if (metric === 'time')       return stats.moving_time_s;
 }
 
+// ── Render ───────────────────────────────────────────────────
+
 function render() {
   const board = document.getElementById('board');
   board.innerHTML = '';
 
-  // Build ranked list
   const ranked = MEMBERS.map(m => {
     const acts = filterActivities(m.activities, currentPeriod);
     const stats = computeStats(acts);
     return { ...m, stats };
-  }).sort((a,b) => getRawMetric(b.stats, currentMetric) - getRawMetric(a.stats, currentMetric));
+  }).sort((a, b) => getRawMetric(b.stats, currentMetric) - getRawMetric(a.stats, currentMetric));
 
-  const maxVal = getRawMetric(ranked[0]?.stats || {distance_km:1,elevation_m:1,count:1,moving_time_s:1}, currentMetric) || 1;
+  const fallback = { distance_km: 1, elevation_m: 1, count: 1, moving_time_s: 1 };
+  const maxVal = getRawMetric(ranked[0]?.stats || fallback, currentMetric) || 1;
 
-  // Totals
-  const totDist = ranked.reduce((s,m) => s + m.stats.distance_km, 0);
-  const totElev = ranked.reduce((s,m) => s + m.stats.elevation_m, 0);
-  const totTime = ranked.reduce((s,m) => s + m.stats.moving_time_s, 0);
-  const totActs = ranked.reduce((s,m) => s + m.stats.count, 0);
+  const totDist = ranked.reduce((s, m) => s + m.stats.distance_km, 0);
+  const totElev = ranked.reduce((s, m) => s + m.stats.elevation_m, 0);
+  const totTime = ranked.reduce((s, m) => s + m.stats.moving_time_s, 0);
+  const totActs = ranked.reduce((s, m) => s + m.stats.count, 0);
 
   document.getElementById('total-dist').innerHTML = totDist.toFixed(1) + ' <span style="font-size:13px;color:#555">km</span>';
   document.getElementById('total-elev').innerHTML = Math.round(totElev).toLocaleString() + ' <span style="font-size:13px;color:#555">m</span>';
   document.getElementById('total-time').textContent = formatTime(totTime);
   document.getElementById('total-acts').textContent = totActs;
-  document.getElementById('member-count').textContent = MEMBERS.length;
 
+  const count = MEMBERS.length;
   const periodLabels = { week: 'this week', month: 'this month', all: 'all time' };
   document.getElementById('period-desc').innerHTML =
-    'Showing ' + periodLabels[currentPeriod] + ' · <span id="member-count">' + MEMBERS.length + '</span> member' + (MEMBERS.length !== 1 ? 's' : '') + ' connected';
+    'Showing ' + periodLabels[currentPeriod] + ' · ' + count + ' member' + (count !== 1 ? 's' : '') + ' connected';
 
-  // Render entries
+  document.getElementById('updated-time').textContent =
+    'Updated ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
   ranked.forEach((m, i) => {
     const mv = getMetricValue(m.stats, currentMetric);
     const barPct = Math.max(4, (getRawMetric(m.stats, currentMetric) / maxVal) * 100);
+
+    const avatarContent = m.profile_photo
+      ? `<img src="${m.profile_photo}" alt="${m.name}" />`
+      : m.initials;
 
     const entry = document.createElement('div');
     entry.className = 'entry' + (i === 0 ? ' first' : '');
     entry.style.animationDelay = (i * 60) + 'ms';
     entry.innerHTML = `
       <div class="rank">${i + 1}</div>
-      <div class="avatar ${m.colorClass}">${m.initials}</div>
+      <div class="avatar ${m.colorClass}">${avatarContent}</div>
       <div class="member-info">
         <div class="member-name">${m.name}</div>
         <div class="member-sub">${m.stats.count} activit${m.stats.count === 1 ? 'y' : 'ies'} · ${formatTime(m.stats.moving_time_s)}</div>
@@ -454,25 +498,39 @@ function render() {
     board.appendChild(entry);
   });
 
-  // Updated time
-  document.getElementById('updated-time').textContent = 'Updated ' + new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+  if (ranked.length === 0) {
+    board.innerHTML = '<div style="color:#555;font-size:14px;padding:1rem 0">No activities for this period yet.</div>';
+  }
 }
 
-function setPeriod(p) {
+function setPeriod(p, e) {
   currentPeriod = p;
   document.querySelectorAll('#period-group .pill').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  e.target.classList.add('active');
   render();
 }
 
-function setMetric(m) {
+function setMetric(m, e) {
   currentMetric = m;
   document.querySelectorAll('#metric-group .pill').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  e.target.classList.add('active');
   render();
 }
 
-render();
+// ── Init ─────────────────────────────────────────────────────
+
+// Show toast if member just joined
+const params = new URLSearchParams(window.location.search);
+if (params.get('joined') === '1') {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = "You're on the leaderboard!";
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+  history.replaceState({}, '', '/leaderboard.html');
+}
+
+loadData();
 </script>
 </body>
 </html>
